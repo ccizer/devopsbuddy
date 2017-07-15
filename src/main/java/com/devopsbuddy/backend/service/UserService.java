@@ -7,6 +7,7 @@ import com.devopsbuddy.backend.persistence.repositories.PlanRepository;
 import com.devopsbuddy.backend.persistence.repositories.RoleRepository;
 import com.devopsbuddy.backend.persistence.repositories.UserRepository;
 import com.devopsbuddy.enums.PlansEnum;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,15 +20,23 @@ public class UserService {
     private RoleRepository roleRepository;
     private UserRepository userRepository;
     private PlanRepository planRepository;
+    private BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(RoleRepository roleRepository, UserRepository userRepository, PlanRepository planRepository) {
+    public UserService(RoleRepository roleRepository,
+                       UserRepository userRepository,
+                       PlanRepository planRepository,
+                       BCryptPasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.planRepository = planRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
     public User createUser(User user, PlansEnum plansEnum, Set<UserRole> userRoles) {
+
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encryptedPassword);
 
         Plan plan = new Plan(plansEnum);
 
